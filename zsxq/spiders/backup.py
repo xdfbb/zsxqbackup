@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime
+from datetime import datetime
 
 import scrapy
 
@@ -62,8 +62,7 @@ class BackupSpider(scrapy.Spider):
             url = ZsxqApi.URL_TOPICS(last_topic['group']['group_id'], last_topic['create_time'])
             print("last topic: " + last_topic['create_time'])
 
-            last_topic_date = datetime.strptime(last_topic['create_time'],
-                                                '%Y-%m-%dT%H:%M:%S.%f%z');  # 2022-07-28T09:40:41.584+0800
+            last_topic_date = datetime.strptime(last_topic['create_time'],'%Y-%m-%dT%H:%M:%S.%f%z');  # 2022-07-28T09:40:41.584+0800
 
             yesterday = datetime.date.today() - datetime.timedelta(days=1)
 

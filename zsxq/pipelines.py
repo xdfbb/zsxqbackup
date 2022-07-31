@@ -44,8 +44,8 @@ class BasePipeline(object):
     @classmethod
     def from_crawler(cls, crawler):
         pipeline = cls()
-        crawler.signals.connect(pipeline.spider_opened, signals.spider_opened)
-        crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
+        crawler.signals.connect(pipeline.open_spider, signals.spider_opened)
+        crawler.signals.connect(pipeline.close_spider, signals.spider_closed)
         return pipeline
 
     def open_spider(self, spider):
