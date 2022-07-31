@@ -62,15 +62,16 @@ class BackupSpider(scrapy.Spider):
             url = ZsxqApi.URL_TOPICS(last_topic['group']['group_id'], last_topic['create_time'])
             print("last topic: " + last_topic['create_time'])
 
-            last_topic_date = datetime.strptime(last_topic['create_time'], '%y-%m-%dT%H:%M:%S'); #2022-07-28T09:40:41.584+0800
-            today = datetime.date.today()
-            yesterday = today - datetime.timedelta(days=1)
+            last_topic_date = datetime.strptime(last_topic['create_time'],
+                                                '%Y-%m-%dT%H:%M:%S.%f%z');  # 2022-07-28T09:40:41.584+0800
+
+            yesterday = datetime.date.today() - datetime.timedelta(days=1)
 
             if (settings.BACKUP_MODE == 'complete'):
                 yield scrapy.Request(url, callback=self.parse_topic)
 
-            if (settings.BACKUP_MODE == 'incremental' and datetime.date.today()):
-                yield scrapy.Request(url, callback=self.parse_topic)
+            if (settings.BACKUP_MODE == 'incremental' and last_topic_date.date() < yesterday):
+                return
 
     def parse_file(self, response):
         item, i = map(response.meta.get, ['item', 'i'])
