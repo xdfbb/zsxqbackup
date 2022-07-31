@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 import scrapy
 
 from zsxq import settings
@@ -14,18 +16,16 @@ class BackupSpider(scrapy.Spider):
     def parse(self, response):
         for group in response.data['groups']:
             group_id = group['group_id']
-            if(settings.BACKUP_MODE == 'black'):
+            if (settings.BACKUP_MODE == 'black'):
                 if group_id in settings.IGNORE_GROUP_ID:
                     continue
                 yield GroupItem(_id=group_id, data=group)
-
                 # 最新话题
                 yield scrapy.Request(ZsxqApi.URL_TOPICS(group_id), callback=self.parse_topic)
             elif (settings.BACKUP_MODE == 'white'):
                 if not group_id in settings.PICK_GROUP_ID:
                     continue
                 yield GroupItem(_id=group_id, data=group)
-
                 # 最新话题
                 yield scrapy.Request(ZsxqApi.URL_TOPICS(group_id), callback=self.parse_topic)
             else:
@@ -46,13 +46,13 @@ class BackupSpider(scrapy.Spider):
                 if images:
                     image_urls = map(ZsxqApi.get_image_url, images)
                     yield TopicImagesItem(_id=topic_id, data=images,
-                                        group_name=group_name, image_urls=image_urls)
+                                          group_name=group_name, image_urls=image_urls)
 
                 # 文件
                 files = topic['talk'].get('files')
                 if files:
                     item = TopicFilesItem(_id=topic_id, data=files,
-                                        group_name=group_name, file_urls=list())
+                                          group_name=group_name, file_urls=list())
                     url = ZsxqApi.URL_FILE_DOWNLOAD(files[0]['file_id'])
                     yield scrapy.Request(url, callback=self.parse_file, meta={'item': item, 'i': 1})
 
@@ -60,8 +60,17 @@ class BackupSpider(scrapy.Spider):
         if topics:
             last_topic = topics[-1]
             url = ZsxqApi.URL_TOPICS(last_topic['group']['group_id'], last_topic['create_time'])
-            print("last topic: "+last_topic['create_time'])
-            yield scrapy.Request(url, callback=self.parse_topic)
+            print("last topic: " + last_topic['create_time'])
+
+            last_topic_date = datetime.strptime(last_topic['create_time'], '%y-%m-%dT%H:%M:%S'); #2022-07-28T09:40:41.584+0800
+            today = datetime.date.today()
+            yesterday = today - datetime.timedelta(days=1)
+
+            if (settings.BACKUP_MODE == 'complete'):
+                yield scrapy.Request(url, callback=self.parse_topic)
+
+            if (settings.BACKUP_MODE == 'incremental' and datetime.date.today()):
+                yield scrapy.Request(url, callback=self.parse_topic)
 
     def parse_file(self, response):
         item, i = map(response.meta.get, ['item', 'i'])

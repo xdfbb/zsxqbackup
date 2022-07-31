@@ -8,12 +8,11 @@ import logging
 from urllib.parse import urljoin, quote
 
 from scrapy.http import TextResponse
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.expected_conditions import url_matches
 from selenium.webdriver.support.wait import WebDriverWait
 
 from zsxq.settings import CHROME_DRIVER_PATH
-from zsxq.webdriver.expected_conditions import cookie_is_set, element_is_complete
+from zsxq.webdriver.expected_conditions import cookie_is_set
 from zsxq.webdriver.support import AutoClosableChrome
 
 logger = logging.getLogger(__name__)
@@ -99,7 +98,6 @@ class ZsxqApi(object):
             # TODO: 似乎是加密了，有空再分析该请求
             # avatar_complete = element_is_complete((By.CSS_SELECTOR, 'p.avastar-p img'))
             # WebDriverWait(driver, 30).until(avatar_complete)
-            
 
             logger.info('access_token加载成功: %s' % access_token)
             logger.info('user-agent加载成功: %s' % user_agent)

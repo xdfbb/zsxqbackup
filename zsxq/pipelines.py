@@ -48,10 +48,10 @@ class BasePipeline(object):
         crawler.signals.connect(pipeline.spider_closed, signals.spider_closed)
         return pipeline
 
-    def spider_opened(self, spider):
+    def open_spider(self, spider):
         pass
 
-    def spider_closed(self, spider):
+    def close_spider(self, spider):
         pass
 
 
@@ -62,7 +62,7 @@ class ZsxqPipeline(BasePipeline):
     TIME_LABEL = time.strftime("%Y-%m-%d", time.localtime())
     EXPORT_PATH = os.path.join(os.getcwd(), 'downloads', TIME_LABEL)
 
-    def spider_opened(self, spider):
+    def open_spider(self, spider):
         if not os.path.exists(self.EXPORT_PATH):
             os.makedirs(self.EXPORT_PATH)
 
@@ -73,12 +73,12 @@ class GroupItemExportPipeline(BasePipeline):
     """
     EXPORT_PATH = os.path.join(ZsxqPipeline.EXPORT_PATH, 'groups.json')
 
-    def spider_opened(self, spider):
+    def open_spider(self, spider):
         self.file = open(self.EXPORT_PATH, 'wb')
         self.exporter = ZsxqItemExporter(self.file)
         self.exporter.start_exporting()
 
-    def spider_closed(self, spider):
+    def close_spider(self, spider):
         self.exporter.finish_exporting()
         self.file.close()
 
@@ -100,7 +100,7 @@ class TopicItemExportPipeline(BasePipeline):
         self.files, self.exporters = {}, {}
         self.seen_groups = set()
 
-    def spider_closed(self, spider):
+    def close_spider(self, spider):
         list(map(lambda e: e.finish_exporting(), self.exporters.values()))
         list(map(lambda f: f.close(), self.files.values()))
 

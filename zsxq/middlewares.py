@@ -5,8 +5,8 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 from urllib.parse import urlsplit
-
 from zsxq.api import ZsxqApi, ZsxqApiResponse
+import logging
 
 
 class ConvertToZsxqApiResponseMiddleware(object):
@@ -58,6 +58,10 @@ class AuthorizationMiddleware(object):
             return request
         return response
 
+    def process_exception(request, exception, spider):
+        logging.error(logging.ERROR, exception)
+
+
 class HttpHostCheckMiddleware(object):
     """
     自动检测并修正request头部中host的中间件
@@ -69,11 +73,12 @@ class HttpHostCheckMiddleware(object):
         if not host or host != real_host:
             request.headers['Host'] = real_host
 
+
 class ZSXQRetryMiddleware(object):
     def process_response(self, request, response, spider):
         if isinstance(response, ZsxqApiResponse) and response.code == 1059:
             retries = request.meta.get('retry_times', 0) + 1
-            if(retries <= 7):
+            if (retries <= 7):
                 spider.logger.warn("code is :" + str(response.code))
                 retryreq = request.copy()
                 retryreq.meta['retry_times'] = retries
