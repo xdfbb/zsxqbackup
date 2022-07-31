@@ -27,13 +27,12 @@ ITEM_PIPELINES = {
 
 # Web Driver
 CHROME_DRIVER_PATH = 'chromedriver'
-BACKUP_MODE = 'white'  # or black
-DOWNLOAD_MODE = 'incremental'  # or complete
+BACKUP_MODE = 'white'  # or black or white
+DOWNLOAD_MODE = 'complete'  # or complete or incremental
 
 # 备份的圈子id
 PICK_GROUP_ID = [
-    551151485124
-#    8424258282, 551151485124, 28512842824421, 1824528822, 4148444128, 454855211158
+   8424258282, 551151485124, 28512842824421, 1824528822, 4148444128, 454855211158
 
 ]
 
