@@ -79,8 +79,9 @@ class GroupItemExportPipeline(BasePipeline):
         self.exporter.start_exporting()
 
     def close_spider(self, spider):
-        self.exporter.finish_exporting()
-        self.file.close()
+        if(not self.file.closed):
+                self.exporter.finish_exporting()
+                self.file.close()
 
     def process_item(self, item, spider):
         if type(item) is GroupItem:
@@ -107,7 +108,8 @@ class TopicItemExportPipeline(BasePipeline):
     def process_item(self, item, spider):
         if type(item) is TopicItem:
             name = self.__check_group(item['group_name'])
-            self.exporters[name].export_item(item)
+            if(name in self.exporters):
+                self.exporters[name].export_item(item)
         return item
 
     def __check_group(self, name):
