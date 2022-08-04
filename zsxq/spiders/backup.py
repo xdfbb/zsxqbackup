@@ -66,11 +66,12 @@ class BackupSpider(scrapy.Spider):
 
             yesterday = datetime.date.today() - datetime.timedelta(days=1)
 
-            if (settings.BACKUP_MODE == 'complete'):
-                yield scrapy.Request(url, callback=self.parse_topic)
-
             if (settings.BACKUP_MODE == 'incremental' and last_topic_date.date() < yesterday):
                 yield
+            # complete or 时间晚于昨天
+            else:
+                yield scrapy.Request(url, callback=self.parse_topic)
+
 
     def parse_file(self, response):
         item, i = map(response.meta.get, ['item', 'i'])
